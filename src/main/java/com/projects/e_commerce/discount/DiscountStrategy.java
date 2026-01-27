@@ -1,6 +1,6 @@
 package com.projects.e_commerce.discount;
 
-import com.projects.e_commerce.domain.user.User;
+import com.projects.e_commerce.user.entity.User;
 
 import java.math.BigDecimal;
 

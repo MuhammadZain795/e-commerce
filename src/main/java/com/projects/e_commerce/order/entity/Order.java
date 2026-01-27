@@ -1,12 +1,18 @@
-package com.projects.e_commerce.domain.order;
+package com.projects.e_commerce.order.entity;
 
-import com.projects.e_commerce.domain.user.User;
+import com.projects.e_commerce.user.entity.User;
 import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "orders")
 public class Order {
 

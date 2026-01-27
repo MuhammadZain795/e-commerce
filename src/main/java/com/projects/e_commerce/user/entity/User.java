@@ -1,16 +1,20 @@
-package com.projects.e_commerce.domain.user;
+package com.projects.e_commerce.user.entity;
 
+import com.projects.e_commerce.user.Role;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
-
-import javax.management.relation.Role;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "users")
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
