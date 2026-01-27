@@ -2,11 +2,12 @@ package com.projects.e_commerce.user.controller;
 
 import com.projects.e_commerce.dto.UserLoginRequest;
 import com.projects.e_commerce.dto.UserRegistrationRequest;
-import com.projects.e_commerce.repository.UserRepository;
 import com.projects.e_commerce.security.JwtService;
 import com.projects.e_commerce.user.entity.User;
 import com.projects.e_commerce.user.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,11 +60,21 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserLoginRequest req) {
+
         User user = userService.findByEmail(req.getEmail());
+
         if (!bCryptPasswordEncoder.matches(req.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
-        String token = jwtService.generateToken(user); // JWT generation service
+
+        UserDetails userDetails =
+                new org.springframework.security.core.userdetails.User(
+                        user.getEmail(),
+                        user.getPassword(),
+                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                );
+
+        String token = jwtService.generateToken(userDetails);
         return ResponseEntity.ok(token);
     }
 }
