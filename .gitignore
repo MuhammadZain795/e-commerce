@@ -1,19 +1,14 @@
-# Compiled output
+# Java
 *.class
 *.bin
 
 # Gradle
-build/
 .gradle/
+build/
 
-# Maven
-target/
-
-# IntelliJ
+# IDEs
 .idea/
 *.iml
-
-# VS Code
 .vscode/
 
 # OS
