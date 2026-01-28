@@ -40,9 +40,16 @@ public class SecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
 
-                        // Product reads are public; writes are admin-only
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        // Products:
+                        // - reads: any authenticated role (USER, PREMIUM_USER, ADMIN)
+                        // - writes: ADMIN only
+                        .requestMatchers(HttpMethod.GET, "/api/products/**")
+                        .hasAnyRole("USER", "PREMIUM_USER", "ADMIN")
                         .requestMatchers("/api/products/**").hasRole("ADMIN")
+
+                        // Orders: only USER and PREMIUM_USER can place/view orders
+                        .requestMatchers("/api/orders/**")
+                        .hasAnyRole("USER", "PREMIUM_USER")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

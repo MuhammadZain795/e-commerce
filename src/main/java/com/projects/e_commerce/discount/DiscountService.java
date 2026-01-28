@@ -20,8 +20,8 @@ public class DiscountService {
         for (DiscountStrategy strategy : strategies) {
             discounted = strategy.apply(user, discounted);
         }
-        // Extra 5% for orders > 500
-        if (discounted.compareTo(BigDecimal.valueOf(500)) > 0) {
+        // Extra 5% for orders > 500 based on original total (pre-discount)
+        if (total.compareTo(BigDecimal.valueOf(500)) > 0) {
             discounted = discounted.multiply(BigDecimal.valueOf(0.95));
         }
         return discounted;

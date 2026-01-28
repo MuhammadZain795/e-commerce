@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,12 +37,14 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users (admin only)", security = @SecurityRequirement(name = "bearer-key"))
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @Operation(summary = "Delete a user by ID (admin only)", security = @SecurityRequirement(name = "bearer-key"))
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
@@ -59,7 +64,22 @@ public class UserController {
 
     @Operation(summary = "Get a user by ID (admin or self)", security = @SecurityRequirement(name = "bearer-key"))
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<User> getUser(@PathVariable Long id, Authentication authentication) {
+
+        if (authentication != null) {
+            // Allow ADMIN to fetch any user
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!isAdmin) {
+                // For non-admins: only allow fetching own user record
+                User current = userService.findByEmail(authentication.getName());
+                if (!current.getId().equals(id)) {
+                    throw new AccessDeniedException("You can only access your own user details");
+                }
+            }
+        }
+
         return ResponseEntity.ok(userService.findById(id));
     }
 

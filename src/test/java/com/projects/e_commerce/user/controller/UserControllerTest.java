@@ -91,15 +91,17 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "test@mail.com")
     void shouldGetUserById() throws Exception {
 
         User user = User.builder()
                 .id(1L)
                 .email("test@mail.com")
+                .role(Role.USER)
                 .build();
 
         when(userService.findById(1L)).thenReturn(user);
+        when(userService.findByEmail("test@mail.com")).thenReturn(user);
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())

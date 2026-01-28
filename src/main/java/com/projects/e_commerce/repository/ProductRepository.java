@@ -17,7 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "(:name IS NULL OR p.name LIKE %:name%) AND " +
             "(:min IS NULL OR p.price >= :min) AND " +
             "(:max IS NULL OR p.price <= :max) AND " +
-            "p.deleted = false")
+            "p.deleted = false AND " +
+            "p.quantity > 0")
     Page<Product> search(@Param("name") String name,
                          @Param("min") BigDecimal min,
                          @Param("max") BigDecimal max,
