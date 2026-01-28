@@ -2,6 +2,9 @@ package com.projects.e_commerce.product.controller;
 
 import com.projects.e_commerce.product.entity.Product;
 import com.projects.e_commerce.product.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+@Tag(name = "Product Management", description = "CRUD operations for products")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -21,6 +25,7 @@ public class ProductController {
         this.service = service;
     }
 
+    @Operation(summary = "Create a new product (admin only)", security = @SecurityRequirement(name = "bearer-key"))
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product p) {
@@ -28,6 +33,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @Operation(summary = "Update a product by ID (admin only)", security = @SecurityRequirement(name = "bearer-key"))
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product p) {
@@ -35,6 +41,7 @@ public class ProductController {
         return ResponseEntity.ok(updated);
     }
 
+    @Operation(summary = "Soft-delete a product by ID (admin only)", security = @SecurityRequirement(name = "bearer-key"))
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
@@ -42,6 +49,7 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Search products with optional filters and pagination")
     @GetMapping
     public ResponseEntity<Page<Product>> search(
             @RequestParam(required = false) String name,
@@ -52,6 +60,7 @@ public class ProductController {
         return ResponseEntity.ok(service.search(name, min, max, pageable));
     }
 
+    @Operation(summary = "Get a product by ID")
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
