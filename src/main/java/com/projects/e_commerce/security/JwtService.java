@@ -9,17 +9,25 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.function.Function;
 
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "my-secret-key-very-long";
+    private static final String SECRET_KEY = "my-secret-key-very-long-my-secret-key-very-long"; // must be >= 256 bits for HS256
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // use Key instead of String
                 .compact();
     }
 
@@ -37,8 +45,9 @@ public class JwtService {
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return resolver.apply(claims);
