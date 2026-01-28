@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,7 +60,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginRequest req) {
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest req) {
 
         User user = userService.findByEmail(req.getEmail());
 
@@ -75,6 +76,8 @@ public class UserController {
                 );
 
         String token = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(token);
+
+        // Wrap token in JSON
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }
