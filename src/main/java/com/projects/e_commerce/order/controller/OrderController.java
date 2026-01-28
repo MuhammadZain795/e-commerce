@@ -15,16 +15,19 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final UserService userService; // Fetch logged-in user
+    private final UserService userService;
 
-    public OrderController(OrderService orderService, UserService userService) {
+    public OrderController(OrderService orderService,
+                           UserService userService) {
         this.orderService = orderService;
         this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<Order> placeOrder(@RequestBody List<OrderItem> items,
-                                            @RequestParam Long userId) {
+    public ResponseEntity<Order> placeOrder(
+            @RequestBody List<OrderItem> items,
+            @RequestParam Long userId
+    ) {
         User user = userService.findById(userId);
         Order order = orderService.placeOrder(user, items);
         return ResponseEntity.ok(order);
@@ -36,7 +39,9 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getUserOrders(@PathVariable Long userId) {
+    public ResponseEntity<List<Order>> getUserOrders(
+            @PathVariable Long userId
+    ) {
         User user = userService.findById(userId);
         return ResponseEntity.ok(orderService.getOrdersByUser(user));
     }
