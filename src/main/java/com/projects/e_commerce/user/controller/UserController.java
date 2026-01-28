@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class UserController {
 
     // Open registration
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserRegistrationRequest req) {
+    public ResponseEntity<User> registerUser(@Valid @RequestBody UserRegistrationRequest req) {
         User user = User.builder()
                 .email(req.getEmail())
                 .password(req.getPassword())
@@ -52,7 +53,6 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
-
     // Get single user (admin or self)
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
@@ -60,8 +60,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest req) {
-
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest req) {
         User user = userService.findByEmail(req.getEmail());
 
         if (!bCryptPasswordEncoder.matches(req.getPassword(), user.getPassword())) {
@@ -77,7 +76,6 @@ public class UserController {
 
         String token = jwtService.generateToken(userDetails);
 
-        // Wrap token in JSON
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
