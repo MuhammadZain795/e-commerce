@@ -1,6 +1,8 @@
 package com.projects.e_commerce.order.service;
 
 import com.projects.e_commerce.discount.DiscountService;
+import com.projects.e_commerce.exception.BadRequestException;
+import com.projects.e_commerce.exception.ResourceNotFoundException;
 import com.projects.e_commerce.order.entity.Order;
 import com.projects.e_commerce.order.entity.OrderItem;
 import com.projects.e_commerce.product.entity.Product;
@@ -34,10 +36,10 @@ public class OrderService {
         // Validate stock and set unit prices
         for (OrderItem item : items) {
             Product product = productRepo.findById(item.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
             if (product.getQuantity() < item.getQuantity()) {
-                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+                throw new BadRequestException("Insufficient stock for product: " + product.getName());
             }
 
             // Decrease product stock
@@ -84,7 +86,7 @@ public class OrderService {
 
     public Order getOrderById(Long id) {
         return orderRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
     }
 
     public List<Order> getOrdersByUser(User user) {

@@ -2,6 +2,8 @@ package com.projects.e_commerce.user.controller;
 
 import com.projects.e_commerce.dto.UserLoginRequest;
 import com.projects.e_commerce.dto.UserRegistrationRequest;
+import com.projects.e_commerce.exception.BadRequestException;
+import com.projects.e_commerce.exception.UnauthorizedException;
 import com.projects.e_commerce.security.JwtService;
 import com.projects.e_commerce.user.entity.User;
 import com.projects.e_commerce.user.service.UserService;
@@ -10,7 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -75,7 +76,7 @@ public class UserController {
                 // For non-admins: only allow fetching own user record
                 User current = userService.findByEmail(authentication.getName());
                 if (!current.getId().equals(id)) {
-                    throw new AccessDeniedException("You can only access your own user details");
+                    throw new UnauthorizedException("You can only access your own user details");
                 }
             }
         }
@@ -89,7 +90,7 @@ public class UserController {
         User user = userService.findByEmail(req.getEmail());
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new BadRequestException("Invalid credentials");
         }
 
         UserDetails userDetails =

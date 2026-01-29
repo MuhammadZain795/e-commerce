@@ -1,5 +1,7 @@
 package com.projects.e_commerce.user.service;
 
+import com.projects.e_commerce.exception.BadRequestException;
+import com.projects.e_commerce.exception.ResourceNotFoundException;
 import com.projects.e_commerce.user.entity.User;
 import com.projects.e_commerce.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +22,7 @@ public class UserService {
 
     public User createUser(User user) {
         if (userRepo.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new BadRequestException("Email already exists");
         }
         // Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -29,12 +31,12 @@ public class UserService {
 
     public User findById(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public User findByEmail(String email) {
         return userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public List<User> getAllUsers() {
